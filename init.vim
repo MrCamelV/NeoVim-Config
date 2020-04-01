@@ -12,15 +12,18 @@ set expandtab
 set hidden
 set updatetime=300
 set foldmethod=indent
-set foldlevel=3
+set foldlevel=1
 set foldnestmax=20
+set wildmenu
+set path+=**
+set smarttab
+set autoread
 
 " Key Mapping
 let mapleader = "-"
 iabbrev gppg MYGPGKEY 
 inoremap ; ; 
 inoremap , , 
-nnoremap <leader>q viw<esc>a"<esc>bi"<esc>lel
 nnoremap <leader>vr :vsplit ~/.config/nvim/init.vim<cr>
 tnoremap <leader><Esc> <C-\><C-n>
 nnoremap <space> za
@@ -28,77 +31,23 @@ nnoremap <space> za
 noremap <C-c> "*y
 noremap <C-v> "*p
 noremap <C-x> "*d
-noremap <Backspace> _d
+noremap <Backspace> "_d
 inoremap <C-z> <Esc>ui
+
+nnoremap <C-h> <C-w>h
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-l> <C-w>l
+
+command W :w<cr>
 
 nnoremap <silent> <leader>d :call ToggleTerm('lazydocker')<cr>
 nnoremap <silent> <leader>t :call ToggleTerm('$SHELL')<cr>
 
 " Auto CMD
 autocmd BufRead,BufWritePre *.html,*.xml :normal gg=G
-autocmd BufNewFile * :write
 autocmd TermOpen * startinsert
 autocmd TermOpen * setlocal listchars= nonumber norelativenumber
-
-" Vim-Plug Install
-let plug=expand('~/.config/nvim/autoload/plug.vim')
-if !filereadable(plug)
-    echo "Installing Vim-Plug ..."
-    echo ""
-    !curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-    autocmd * * :PlugInstall<cr>:UpdateRemotePlugins<cr>:q<cr>
-endif
-
-" Plugins
-call plug#begin('~/.config/nvim/plugged')
-    Plug 'phanviet/vim-monokai-pro'
-    "Plug 'Erichain/vim-monokai-pro'
-    Plug 'skywind3000/asyncrun.vim'
-    "Plug 'fholgado/minibufexpl.vim'
-    Plug 'airblade/vim-gitgutter'
-    Plug 'Konfekt/FastFold'
-    Plug 'mbbill/undotree'
-    Plug 'alvan/vim-closetag'
-    Plug 'KabbAmine/vCoolor.vim'
-    Plug 'vim-airline/vim-airline'
-    Plug 'jiangmiao/auto-pairs'
-    Plug 'jacquesbh/vim-showmarks'
-    Plug 'scrooloose/nerdtree'
-    " Plug 'svermeulen/nvim-moonmaker'
-    Plug 'lambdalisue/gina.vim'
-    Plug 'scrooloose/nerdcommenter'
-    Plug 'honza/vim-snippets'
-    Plug 'machakann/vim-sandwich'
-    Plug 'sbdchd/neoformat'
-    Plug 'terryma/vim-multiple-cursors'
-    Plug 'vim-airline/vim-airline-themes'
-    Plug 'Xuyuanp/nerdtree-git-plugin'
-    " Plug 'junegunn/vim-emoji'
-    Plug 'sheerun/vim-polyglot'
-    " Plug 'Vigemus/nvimux' 
-    Plug 'liuchengxu/vista.vim'
-    Plug 'ryanoasis/vim-devicons'
-    Plug 'SirVer/ultisnips'
-    " Plug 'lervag/vimtex'
-    Plug 'junegunn/goyo.vim'
-    " Plug 'Shougo/denite.nvim'
-    Plug 'mhinz/vim-startify'
-    " Plug 'ctrlpvim/ctrlp.vim'
-    Plug 'Yggdroot/indentLine'
-    Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
-    Plug 'autozimu/LanguageClient-neovim', {'branch': 'next', 'do': 'bash install.sh'}
-    Plug 'junegunn/fzf', { 'do': './install --bin' }
-    Plug 'junegunn/fzf.vim'
-    Plug 'neoclide/coc-emmet',  {'do': 'yarn install --frozen-lockfile'}
-    Plug 'neoclide/coc-yank',  {'do': 'yarn install --frozen-lockfile'}
-    Plug 'fannheyward/coc-marketplace',  {'do': 'yarn install --frozen-lockfile'}
-    Plug 'neoclide/coc-lists',  {'do': 'yarn install --frozen-lockfile'}
-    Plug 'neoclide/coc-highlight',  {'do': 'yarn install --frozen-lockfile'}
-    Plug 'neoclide/coc-snippets',  {'do': 'yarn install --frozen-lockfile'}
-    Plug 'neoclide/coc.nvim', {'branch': 'release'}
-    "{'do' : 'UpdateRemotePlugins'}
-call plug#end()
-packadd termdebug
 
 " Functions
 function! CreateCenteredFloatingWindow()
@@ -140,17 +89,66 @@ function! s:center(lines) abort
   return centered_lines
 endfunction
 
-function LC_maps()
-    if has_key(g:LanguageClient_serverCommands, &filetype)
-        nnoremap <silent> gh :call LanguageClient#textDocument_hover()<cr>
-        nnoremap <silent> gd :call LanguageClient#textDocument_definition()<cr>
-        nnoremap <silent> <leader>r :call LanguageClient#textDocument_rename()<cr>
+packadd termdebug
 
-        set completefunc=LanguageClient#complete
-        set formatexpr=LanguageClient#textDocument_rangeFormatting_sync()
-    endif
-endfunction
+" Vim-Plug Install
+let plug=expand('~/.config/nvim/autoload/plug.vim')
+if !filereadable(plug)
+    echo "Installing Vim-Plug ..."
+    echo ""
+    !curl -fLo ~/.config/nvim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+    autocmd * * <Esc>:PlugInstall<cr>:UpdateRemotePlugins<cr>:q<cr>
+endif
 
+" Plugins
+call plug#begin('~/.config/nvim/plugged')
+    Plug 'phanviet/vim-monokai-pro'
+    "Plug 'Erichain/vim-monokai-pro'
+    Plug 'skywind3000/asyncrun.vim'
+    Plug 'airblade/vim-gitgutter'
+    Plug 'Konfekt/FastFold'
+    Plug 'mbbill/undotree'
+    Plug 'alvan/vim-closetag'
+    Plug 'KabbAmine/vCoolor.vim'
+    Plug 'vim-airline/vim-airline'
+    Plug 'jiangmiao/auto-pairs'
+    Plug 'jacquesbh/vim-showmarks'
+    Plug 'scrooloose/nerdtree'
+    Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
+    Plug 'Xuyuanp/nerdtree-git-plugin'
+    Plug 'lambdalisue/gina.vim'
+    Plug 'scrooloose/nerdcommenter'
+    Plug 'honza/vim-snippets'
+    Plug 'severin-lemaignan/vim-minimap'
+    Plug 'machakann/vim-sandwich'
+    Plug 'sbdchd/neoformat'
+    Plug 'RRethy/vim-illuminate'
+    Plug 'terryma/vim-multiple-cursors'
+    Plug 'vim-airline/vim-airline-themes'
+    Plug 'wellle/targets.vim'
+    " Plug 'junegunn/vim-emoji'
+    " plug 'chrisbra/Colorizer'
+    Plug 'sheerun/vim-polyglot'
+    " Plug 'Vigemus/nvimux' 
+    Plug 'liuchengxu/vista.vim'
+    Plug 'ryanoasis/vim-devicons'
+    Plug 'SirVer/ultisnips'
+    " Plug 'lervag/vimtex'
+    Plug 'junegunn/goyo.vim'
+    Plug 'luochen1990/rainbow'
+    Plug 'mhinz/vim-startify'
+    Plug 'machakann/vim-highlightedyank'
+    Plug 'Yggdroot/indentLine'
+    Plug 'norcalli/nvim-colorizer.lua'
+    Plug 'junegunn/fzf', { 'do': './install --bin' }
+    Plug 'junegunn/fzf.vim'
+    Plug 'neoclide/coc-emmet',  {'do': 'yarn install --frozen-lockfile'}
+    Plug 'fannheyward/coc-marketplace',  {'do': 'yarn install --frozen-lockfile'}
+    Plug 'neoclide/coc-lists',  {'do': 'yarn install --frozen-lockfile'}
+    Plug 'neoclide/coc-snippets',  {'do': 'yarn install --frozen-lockfile'}
+    Plug 'neoclide/coc.nvim', {'branch': 'release'}
+    "{'do' : 'UpdateRemotePlugins'}
+call plug#end()
 " Plugins Configs
 " NERDTree
 	let g:NERDTreeIndicatorMapCustom = {
@@ -212,20 +210,18 @@ let g:gitgutter_grep=''
 noremap  <leader>n :NERDTreeToggle<cr> <c-w>l
 noremap  <leader>v :Vista<cr>
 noremap  <F9> :Goyo<cr>
-nmap  <leader>f :Neoformat<cr>
+noremap  <leader>f :Neoformat<cr>
 nnoremap <F5> :%!xxd<cr>:set ft=xxd<cr>
 nnoremap <F4> :%!xxd -r<cr>
-noremap  <F1> :DoShowMarks<cr>
 noremap <C-p> <esc>:FZF<cr>
 nnoremap <leader>ct :CloseTagToggleBuffer<cr>
+call showmarks#ShowMarks('global')
 autocmd BufEnter * :CloseTagDisableBuffer<cr>
 let g:closetag_filenames = '*.*'
+let g:rainbow_active = 1
 let g:startify_bookmarks = [{'Vim': '~/.config/nvim/init.vim'}, {'Zsh': '~/.zshrc'}]
 let g:UltiSnipsExpandTrigger="<tab>"
-" let g:LanguageClient_autoStart = 1
-" autocmd FileType * call LC_maps()
-
-"lua require('nvimux').bootstrap()
+lua require'colorizer'.setup()
 
 " Indent lines
 	let g:indentLine_fileTypeExclude = [
@@ -235,7 +231,8 @@ let g:UltiSnipsExpandTrigger="<tab>"
 	      \'tagbar',
 	      \'vista_kind',
 	      \'vista',
-	      \'terminal'
+	      \'terminal', 
+          \'fzf'
 	      \]
 	let g:indentLine_char_list = ['|', '¦', '┆', '┊']
 	let g:indent_guides_auto_colors = 1
@@ -309,6 +306,5 @@ let g:UltiSnipsExpandTrigger="<tab>"
 	let g:startify_custom_header = s:center(s:header)
 
 " Theme
-let g:rehash256 = 1
 colorscheme monokai_pro
-let g:airline_theme = 'base16_monokai'
+let g:airline_theme = 'angr'
