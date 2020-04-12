@@ -1,8 +1,11 @@
 # NeoVim-Config
 My NeoVim config files.
 
-May not work on Windows.
+!Important!: May not work on the Windows.
 
-Includes some dead code, for the "future use".
+ASCII art at start screen from the https://www.asciiart.eu/ .
 
-I got that ASCII art, somewhere at the https://www.asciiart.eu/ .
+Dependencies:
+  yarn
+  curl
+  git
