@@ -12,12 +12,18 @@ set expandtab
 set hidden
 set updatetime=300
 set foldmethod=indent
-set foldlevel=1
+set foldlevel=100
 set foldnestmax=20
 set wildmenu
 set path+=**
 set smarttab
 set autoread
+set previewheight=7
+set pumheight=6
+
+syntax on
+filetype plugin on
+set omnifunc=syntaxcomplete#Complete
 
 " Key Mapping
 let mapleader = "-"
@@ -39,10 +45,12 @@ nnoremap <C-j> <C-w>j
 nnoremap <C-k> <C-w>k
 nnoremap <C-l> <C-w>l
 
-command W :w<cr>
+command W :w
+command MakeTags !ctags -R .
 
 nnoremap <silent> <leader>d :call ToggleTerm('lazydocker')<cr>
 nnoremap <silent> <leader>t :call ToggleTerm('$SHELL')<cr>
+inoremap <Tab> <C-R>=CleverTab()<cr>
 
 " Auto CMD
 autocmd BufRead,BufWritePre *.html,*.xml :normal gg=G
@@ -50,6 +58,14 @@ autocmd TermOpen * startinsert
 autocmd TermOpen * setlocal listchars= nonumber norelativenumber
 
 " Functions
+function! CleverTab()
+	if strpart( getline('.'), 0, col('.')-1 ) =~ '^\s*$'
+	    return "\<Tab>"
+	else
+	    return "\<C-N>"
+	endif
+endfunction
+
 function! CreateCenteredFloatingWindow()
     let width = float2nr(&columns * 0.6)
     let height = float2nr(&lines * 0.6)
@@ -127,7 +143,8 @@ call plug#begin('~/.config/nvim/plugged')
     Plug 'vim-airline/vim-airline-themes'
     Plug 'wellle/targets.vim'
     " Plug 'junegunn/vim-emoji'
-    " plug 'chrisbra/Colorizer'
+    " Plug 'chrisbra/Colorizer'
+    " Plug 'vim-scripts/Word-Fuzzy-Completion'
     Plug 'sheerun/vim-polyglot'
     " Plug 'Vigemus/nvimux' 
     Plug 'liuchengxu/vista.vim'
@@ -220,7 +237,6 @@ autocmd BufEnter * :CloseTagDisableBuffer<cr>
 let g:closetag_filenames = '*.*'
 let g:rainbow_active = 1
 let g:startify_bookmarks = [{'Vim': '~/.config/nvim/init.vim'}, {'Zsh': '~/.zshrc'}]
-let g:UltiSnipsExpandTrigger="<tab>"
 lua require'colorizer'.setup()
 
 " Indent lines
