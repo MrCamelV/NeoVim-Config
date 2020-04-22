@@ -20,6 +20,7 @@ set smarttab
 set autoread
 set previewheight=7
 set pumheight=6
+set showcmd
 
 syntax on
 filetype plugin on
@@ -30,15 +31,20 @@ let mapleader = "-"
 iabbrev gppg MYGPGKEY 
 inoremap ; ; 
 inoremap , , 
+
 nnoremap <leader>vr :vsplit ~/.config/nvim/init.vim<cr>
 tnoremap <leader><Esc> <C-\><C-n>
+tnoremap <leader>ex <C-c>exit<cr>
 nnoremap <space> za
 
 noremap <C-c> "*y
 noremap <C-v> "*p
 noremap <C-x> "*d
 noremap <Backspace> "_d
+
 inoremap <C-z> <Esc>ui
+nnoremap <home> ^
+inoremap <home> <Esc>^i
 
 nnoremap <C-h> <C-w>h
 nnoremap <C-j> <C-w>j
@@ -46,11 +52,10 @@ nnoremap <C-k> <C-w>k
 nnoremap <C-l> <C-w>l
 
 command W :w
-command MakeTags !ctags -R .
 
 nnoremap <silent> <leader>d :call ToggleTerm('lazydocker')<cr>
 nnoremap <silent> <leader>t :call ToggleTerm('$SHELL')<cr>
-inoremap <Tab> <C-R>=CleverTab()<cr>
+nnoremap <silent> rn :set relativenumber!<cr>
 
 " Auto CMD
 autocmd BufRead,BufWritePre *.html,*.xml :normal gg=G
@@ -58,14 +63,6 @@ autocmd TermOpen * startinsert
 autocmd TermOpen * setlocal listchars= nonumber norelativenumber
 
 " Functions
-function! CleverTab()
-	if strpart( getline('.'), 0, col('.')-1 ) =~ '^\s*$'
-	    return "\<Tab>"
-	else
-	    return "\<C-N>"
-	endif
-endfunction
-
 function! CreateCenteredFloatingWindow()
     let width = float2nr(&columns * 0.6)
     let height = float2nr(&lines * 0.6)
@@ -105,6 +102,16 @@ function! s:center(lines) abort
   return centered_lines
 endfunction
 
+" Native Plugins
+let g:netrw_banner = 0
+let g:netrw_liststyle = 3
+let g:netrw_browse_split = 4
+let g:netrw_altv = 1
+let g:netrw_winsize = 25
+let g:netrw_dirhistmax = 0
+
+nnoremap <leader>ln :Lexplore<cr><C-w>l
+
 packadd termdebug
 
 " Vim-Plug Install
@@ -118,54 +125,55 @@ endif
 
 " Plugins
 call plug#begin('~/.config/nvim/plugged')
-    Plug 'phanviet/vim-monokai-pro'
-    "Plug 'Erichain/vim-monokai-pro'
-    Plug 'skywind3000/asyncrun.vim'
-    Plug 'airblade/vim-gitgutter'
-    Plug 'Konfekt/FastFold'
-    Plug 'mbbill/undotree'
-    Plug 'alvan/vim-closetag'
+    " Plug 'phanviet/vim-monokai-pro'
     Plug 'KabbAmine/vCoolor.vim'
-    Plug 'vim-airline/vim-airline'
-    Plug 'jiangmiao/auto-pairs'
-    Plug 'jacquesbh/vim-showmarks'
-    Plug 'scrooloose/nerdtree'
-    Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
-    Plug 'Xuyuanp/nerdtree-git-plugin'
-    Plug 'lambdalisue/gina.vim'
-    Plug 'scrooloose/nerdcommenter'
-    Plug 'honza/vim-snippets'
-    Plug 'severin-lemaignan/vim-minimap'
-    Plug 'machakann/vim-sandwich'
-    Plug 'sbdchd/neoformat'
+    Plug 'Konfekt/FastFold'
     Plug 'RRethy/vim-illuminate'
-    Plug 'terryma/vim-multiple-cursors'
-    Plug 'vim-airline/vim-airline-themes'
-    Plug 'wellle/targets.vim'
-    " Plug 'junegunn/vim-emoji'
-    " Plug 'chrisbra/Colorizer'
-    " Plug 'vim-scripts/Word-Fuzzy-Completion'
-    Plug 'sheerun/vim-polyglot'
-    " Plug 'Vigemus/nvimux' 
-    Plug 'liuchengxu/vista.vim'
-    Plug 'ryanoasis/vim-devicons'
     Plug 'SirVer/ultisnips'
-    " Plug 'lervag/vimtex'
-    Plug 'junegunn/goyo.vim'
-    Plug 'luochen1990/rainbow'
-    Plug 'mhinz/vim-startify'
-    Plug 'machakann/vim-highlightedyank'
+    Plug 'Xuyuanp/nerdtree-git-plugin'
     Plug 'Yggdroot/indentLine'
-    Plug 'norcalli/nvim-colorizer.lua'
+    Plug 'airblade/vim-gitgutter'
+    Plug 'alvan/vim-closetag'
+    Plug 'christoomey/vim-sort-motion'
+    Plug 'fannheyward/coc-marketplace',  {'do': 'yarn install --frozen-lockfile'}
+    Plug 'honza/vim-snippets'
+    Plug 'jacquesbh/vim-showmarks'
+    Plug 'jiangmiao/auto-pairs'
     Plug 'junegunn/fzf', { 'do': './install --bin' }
     Plug 'junegunn/fzf.vim'
+    Plug 'junegunn/goyo.vim'
+    Plug 'lambdalisue/gina.vim'
+    Plug 'liuchengxu/vista.vim'
+    Plug 'luochen1990/rainbow'
+    Plug 'machakann/vim-highlightedyank'
+    Plug 'mbbill/undotree'
+    Plug 'mhinz/vim-startify'
+    Plug 'michaeljsmith/vim-indent-object'
+    Plug 'morhetz/gruvbox'
     Plug 'neoclide/coc-emmet',  {'do': 'yarn install --frozen-lockfile'}
-    Plug 'fannheyward/coc-marketplace',  {'do': 'yarn install --frozen-lockfile'}
     Plug 'neoclide/coc-lists',  {'do': 'yarn install --frozen-lockfile'}
     Plug 'neoclide/coc-snippets',  {'do': 'yarn install --frozen-lockfile'}
     Plug 'neoclide/coc.nvim', {'branch': 'release'}
-    "{'do' : 'UpdateRemotePlugins'}
+    Plug 'norcalli/nvim-colorizer.lua'
+    Plug 'ryanoasis/vim-devicons'
+    Plug 'sbdchd/neoformat'
+    Plug 'scrooloose/nerdtree'
+    Plug 'sheerun/vim-polyglot'
+    Plug 'skywind3000/asyncrun.vim'
+    Plug 'terryma/vim-multiple-cursors'
+    Plug 'tiagofumo/vim-nerdtree-syntax-highlight'
+    Plug 'tpope/vim-commentary'
+    Plug 'tpope/vim-repeat'
+    Plug 'tpope/vim-surround'
+    Plug 'vim-airline/vim-airline'
 call plug#end()
+" Worth checking
+" 'chrisbra/Colorizer'
+" 'ervandew/supertab'
+" 'vim-scripts/Word-Fuzzy-Completion'
+" 'prabirshrestha/asyncomplete.vim'
+" 'othree/vim-autocomplpop'
+
 " Plugins Configs
 " NERDTree
 	let g:NERDTreeIndicatorMapCustom = {
@@ -206,6 +214,7 @@ call plug#end()
     nmap <silent> <leader>r <Plug>(coc-rename)
     nmap <silent> <leader>e <Plug>(coc-refactor)
     nnoremap <silent> gh :call CocAction('doHover')<cr>
+    inoremap <silent><expr> <c-space> coc#refresh()
 
 	let g:coc_snippet_next = '<tab>'
 	let g:coc_snippet_prev = '<s-tab>'
@@ -228,9 +237,8 @@ noremap  <leader>n :NERDTreeToggle<cr> <c-w>l
 noremap  <leader>v :Vista<cr>
 noremap  <F9> :Goyo<cr>
 noremap  <leader>f :Neoformat<cr>
-nnoremap <F5> :%!xxd<cr>:set ft=xxd<cr>
-nnoremap <F4> :%!xxd -r<cr>
 noremap <C-p> <esc>:FZF<cr>
+command MakeTags :AsyncRun ctags -R .
 nnoremap <leader>ct :CloseTagToggleBuffer<cr>
 call showmarks#ShowMarks('global')
 autocmd BufEnter * :CloseTagDisableBuffer<cr>
@@ -254,14 +262,15 @@ lua require'colorizer'.setup()
 	let g:indent_guides_auto_colors = 1
 
 " Vista
-	let g:vista_executive_for = {'c': 'coc'}
+    let g:vista_default_executive = 'coc'
+    let g:vista_finder_alternative_executives = ['ctags']
 	let g:vista_icon_indent = ["╰─▸ ", "├─▸ "]
-	let g:vista#renderer#enable_icon = 1
-	let g:vista_sidebar_width = 50
+    let g:vista#renderer#enable_icon = 1
+	let g:vista_sidebar_width = 40
 
 " Airline
 	set statusline+=%#warningmsg#
-	set statusline+=%{SyntasticStatuslineFlag()}
+	" set statusline+=%{SyntasticStatuslineFlag()}
 
 	let g:airline_powerline_fonts = 1
 	let g:airline_symbols = {}
@@ -322,5 +331,5 @@ lua require'colorizer'.setup()
 	let g:startify_custom_header = s:center(s:header)
 
 " Theme
-colorscheme monokai_pro
-let g:airline_theme = 'angr'
+colorscheme gruvbox
+let g:airline_theme = 'gruvbox'
