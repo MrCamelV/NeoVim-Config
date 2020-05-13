@@ -9,3 +9,4 @@ Dependencies:
   git
   fzf
   ripgrep
+  python
