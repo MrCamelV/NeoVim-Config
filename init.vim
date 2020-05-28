@@ -25,7 +25,7 @@ set nomore
 set noshowmode
 set number
 set numberwidth=1
-set path+=**
+set pastetoggle=<F2>
 set previewheight=7
 set pumheight=6
 set ruler
@@ -57,12 +57,20 @@ set wildmenu
 set wildmode=full
 set wrap
 
+set cscopepathcomp=3
+set cscopequickfix=s-,c-,d-,i-,t-,e-,a-
+set cscopetag cscopeverbose
+set cscopetagorder=0
+
+set path=**
+set tags+=tags;/
+
 syntax on
 filetype indent on
 filetype plugin on
 set omnifunc=syntaxcomplete#Complete
 
-" Key Mapping
+" Key Mappings
 let mapleader = ","
 
 nnoremap <silent> ;v <cmd>e ~/.config/nvim/init.vim<cr>
@@ -78,7 +86,6 @@ inoremap <silent> / /<C-x><C-f>
 nnoremap <silent> <Backspace><Backspace> "_dd
 
 xnoremap <silent> @ :<C-u>execute(":'<,'>normal @" . nr2char(getchar()))<cr>
-" xnoremap <silent> . :<C-u>execute(":'<,'>normal .")<cr>
 xnoremap <silent> . <cmd>execute("normal .")<cr>
 
 vnoremap <silent> <C-c> "*y
@@ -130,6 +137,7 @@ inoremap <silent> <C-space> <C-x><C-o>
 
 nnoremap <silent> ss <cmd>update<cr>
 nnoremap <silent> <C-z> <cmd>ZoomToggle<cr>
+tnoremap <silent> <C-z> <cmd>ZoomToggle<cr>
 
 nnoremap <silent> o <cmd>call <SID>OpenLines(v:count, 0)<cr>
 nnoremap <silent> O <cmd>call <SID>OpenLines(v:count, -1)<cr>
@@ -147,7 +155,18 @@ inoremap <silent> [ []<left>
 inoremap <silent> ` ``<left>
 inoremap <silent> { {}<left>
 
-inoremap <silent> {<cr> {<cr>}<C-o>O
+inoremap <silent> <C-e> <cr><C-o>O
+
+nnoremap <silent> <C-\>c :cs find c <C-R>=expand("<cword>")<cr><cr>
+nnoremap <silent> <C-\>d :cs find d <C-R>=expand("<cword>")<cr><cr>
+nnoremap <silent> <C-\>e :cs find e <C-R>=expand("<cword>")<cr><cr>
+nnoremap <silent> <C-\>f :cs find f <C-R>=expand("<cfile>")<cr><cr>
+nnoremap <silent> <C-\>g :cs find g <C-R>=expand("<cword>")<cr><cr>
+nnoremap <silent> <C-\>i :cs find i ^<C-R>=expand("<cfile>")<cr>$<cr>
+nnoremap <silent> <C-\>s :cs find s <C-R>=expand("<cword>")<cr><cr>
+nnoremap <silent> <C-\>t :cs find t <C-R>=expand("<cword>")<cr><cr>
+
+nnoremap <silent> <C-y> :cstag <C-r>=expand("<cword>")<cr><cr>
 
 " nnoremap ,html :-1read $HOME/.vim/.skeleton.html<cr>3jwf>a
 
@@ -158,7 +177,10 @@ command! Ss silent! mksession!
 command! Reload call s:Reload()
 command! Sl call s:LoadSession()
 command! FixSpaces call s:FixSpaces()
+autocmd BufEnter /* call s:LoadCscope()
 command! ZoomToggle call s:ZoomToggle()
+command! -nargs=+ -complete=file -bar Grep cgetexpr <SID>Grep(<q-args>)
+command! AddPath set path+=$PWD/**
 command! DiffOrig vert new | set bt=nofile | r ++edit # | 0d_ | diffthis | wincmd p | diffthis
 
 " Auto Commands
@@ -189,11 +211,22 @@ highlight SpellLocal term=underline cterm=underline
 highlight! LineNr ctermfg=none guibg=none
 
 " Macros
-let @i = "ggvG="
+let @i = "G="
 let @s = "gsii"
+let @w = "\<C-w>="
 
 " Abbreviations
 iabbrev fasle false
+
+cnoreabbrev E e
+cnoreabbrev Q q
+cnoreabbrev Qa qa
+cnoreabbrev W w
+cnoreabbrev WQ wq
+cnoreabbrev Wq wq
+cnoreabbrev Wqa wqa
+cnoreabbrev DictOn set complete+=k
+cnoreabbrev DictOff set complete-=k
 
 " Functions
 function! s:Reload() abort
@@ -205,6 +238,21 @@ function! s:Reload() abort
     call cursor(l:line, l:column)
 
     set nomodified
+endfunction
+
+function! s:Grep(arg)
+    let l:grepprg = &grepprg
+    if a:arg =~? "^'"
+        let l:grepprg .= ' --fixed-strings'
+    endif
+
+    let l:search = join([l:grepprg, a:arg])
+    let l:results = system(l:search)
+    if empty(l:results)
+        echom 'No results for search: '.a:arg
+    endif
+
+    return l:results
 endfunction
 
 function! s:Mkdir()
@@ -220,6 +268,17 @@ function! s:Mkdir()
     endif
 endfunction
 
+function! s:LoadCscope()
+    let l:db = findfile("cscope.out", ".;")
+    if (!empty(l:db))
+        let l:path = strpart(l:db, 0, match(l:db, "/cscope.out$"))
+        set nocscopeverbose
+        execute "cs add " . l:db . " " . l:path
+        cs reset
+        set cscopeverbose
+    endif
+endfunction
+
 function! s:LoadSession()
     if filereadable(expand("%:p:h") . "/Session.vim")
         execute("source Session.vim")
@@ -231,9 +290,9 @@ function! s:CleverTab()
         return "\<C-n>"
     endif
 
-    let substr = matchstr(strpart(getline('.'), -1, col('.')+1), "[^ \t]*$")
+    let l:substr = matchstr(strpart(getline('.'), -1, col('.')+1), "[^ \t]*$")
 
-    if empty(substr)
+    if empty(l:substr)
         return "\<Tab>"
     else
         return "\<C-n>"
@@ -342,37 +401,9 @@ nnoremap <silent> ;n <cmd>Lexplore<cr>
 runtime ftplugin/man.vim
 set keywordprg=:Man
 
-packadd termdebug
-packadd matchit
-packadd cfilter
-
-set cscopepathcomp=3
-set cscopequickfix=s-,c-,d-,i-,t-,e-,a-
-set cscopetag cscopeverbose
-set cscopetagorder=0
-
-nnoremap <silent> <C-\>c :cs find c <C-R>=expand("<cword>")<cr><cr>
-nnoremap <silent> <C-\>d :cs find d <C-R>=expand("<cword>")<cr><cr>
-nnoremap <silent> <C-\>e :cs find e <C-R>=expand("<cword>")<cr><cr>
-nnoremap <silent> <C-\>f :cs find f <C-R>=expand("<cfile>")<cr><cr>
-nnoremap <silent> <C-\>g :cs find g <C-R>=expand("<cword>")<cr><cr>
-nnoremap <silent> <C-\>i :cs find i ^<C-R>=expand("<cfile>")<cr>$<cr>
-nnoremap <silent> <C-\>s :cs find s <C-R>=expand("<cword>")<cr><cr>
-nnoremap <silent> <C-\>t :cs find t <C-R>=expand("<cword>")<cr><cr>
-
-function! LoadCscope()
-    let l:db = findfile("cscope.out", ".;")
-    if (!empty(l:db))
-        let l:path = strpart(l:db, 0, match(l:db, "/cscope.out$"))
-        set nocscopeverbose
-        execute "cs add " . l:db . " " . l:path
-        set cscopeverbose
-    elseif $CSCOPE_DB != ""
-        cs add $CSCOPE_DB
-    endif
-endfunction
-
-autocmd BufEnter /* call LoadCscope()
+packadd! termdebug
+packadd! matchit
+packadd! cfilter
 
 " For Nvim LSP
 " lua require"nvim_lsp".tsserver.setup{}
@@ -398,7 +429,6 @@ endif
 " Plugins
 call plug#begin("~/.config/nvim/plugged")
     Plug 'Konfekt/FastFold'
-    Plug 'Olical/vim-enmasse'
     Plug 'Yggdroot/indentLine'
     Plug 'alvan/vim-closetag'
     Plug 'brooth/far.vim', {'do': ':UpdateRemotePlugins'}
@@ -425,13 +455,12 @@ call plug#begin("~/.config/nvim/plugged")
     Plug 'neomake/neomake'
     Plug 'norcalli/nvim-colorizer.lua'
     Plug 'prabirshrestha/async.vim'
-    Plug 'prabirshrestha/asyncomplete-lsp.vim'
-    Plug 'prabirshrestha/asyncomplete.vim'
     Plug 'prabirshrestha/vim-lsp'
     Plug 'sbdchd/neoformat'
     Plug 'sheerun/vim-polyglot'
     Plug 'skywind3000/asyncrun.vim'
     Plug 'skywind3000/vim-dict'
+    Plug 'stefandtw/quickfix-reflector.vim'
     Plug 'tpope/vim-commentary'
     Plug 'tpope/vim-eunuch'
     Plug 'tpope/vim-sleuth'
@@ -442,9 +471,6 @@ call plug#end()
 " 'kien/rainbow_parentheses.vim'
 " 'vim-scripts/Word-Fuzzy-Completion'
 " 'ncm2/float-preview.nvim'
-" 'mh21/errormarker.vim'
-" 'jiangmiao/auto-pairs'
-" 'KabbAmine/vCoolor.vim'
 
 " Plugins Configs
 " Other
@@ -500,6 +526,7 @@ highlight lspReference ctermfg=red guifg=red ctermbg=green guibg=green
 highlight link LspErrorText GruvboxRedSign
 highlight link LspHintText GruvboxBlueSign
 highlight link LspWarningText GruvboxOrangeSign
+set omnifunc=lsp#complete
 nnoremap <silent> gh <cmd>LspHover<cr>
 nnoremap <silent> <leader>r <cmd>LspRename<cr>
 nnoremap <silent> gd <cmd>LspDeclaration<cr>
