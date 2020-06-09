@@ -3,8 +3,8 @@ set autoindent
 set autoread
 set background=dark
 set backspace=indent,eol,start
-set complete=t,i,.,w,b,u,s,d
-set completeopt=menu,longest,noinsert,noselect
+set complete=t,i,.,w,b,u,s,d,U
+set completeopt=menu,longest,noinsert,noselect,menuone
 set conceallevel=2
 set emoji
 set encoding=UTF-8
@@ -68,6 +68,7 @@ set tags+=tags;/
 syntax on
 filetype indent on
 filetype plugin on
+filetype plugin indent on
 set omnifunc=syntaxcomplete#Complete
 
 " Key Mappings
@@ -125,7 +126,6 @@ nnoremap <silent> cd <cmd>cclose<cr>
 nnoremap <silent> [q <cmd>execute(v:count1 . "cprevious")<cr>
 nnoremap <silent> ]q <cmd>execute(v:count1 . "cnext")<cr>
 
-nnoremap <silent> tt <cmd>terminal<cr>
 
 inoremap <silent> <C-t> <C-r>=<SID>Exen("klyiWjpl")<cr><End>
 inoremap <silent> <C-u> <C-g>u<C-u>
@@ -142,8 +142,12 @@ tnoremap <silent> <C-z> <cmd>ZoomToggle<cr>
 nnoremap <silent> o <cmd>call <SID>OpenLines(v:count, 0)<cr>
 nnoremap <silent> O <cmd>call <SID>OpenLines(v:count, -1)<cr>
 
-nnoremap <silent> te <cmd>call <SID>ToggleTerm("$SHELL")<cr>
+nnoremap <silent> te <cmd>call <SID>OpenTerm("$SHELL")<cr>
+nnoremap <silent> tt <cmd>terminal<cr>
+
 nnoremap <silent> rn <cmd>set relativenumber!<cr>
+
+nnoremap <silent> ;r <cmd>call <SID>Reload()<cr>
 
 nnoremap <silent> p p`[v`]=
 nnoremap <silent> P P`[v`]=
@@ -177,17 +181,18 @@ command! Ss silent! mksession!
 command! Reload call s:Reload()
 command! Sl call s:LoadSession()
 command! FixSpaces call s:FixSpaces()
-autocmd BufEnter /* call s:LoadCscope()
 command! ZoomToggle call s:ZoomToggle()
 command! -nargs=+ -complete=file -bar Grep cgetexpr <SID>Grep(<q-args>)
 command! AddPath set path+=$PWD/**
 command! DiffOrig vert new | set bt=nofile | r ++edit # | 0d_ | diffthis | wincmd p | diffthis
 
 " Auto Commands
-autocmd TermOpen * startinsert
 autocmd TermOpen * setlocal listchars= nonumber norelativenumber
+autocmd TermOpen * startinsert
+autocmd BufEnter * if &buftype == "terminal" | startinsert | endif
 
 autocmd BufEnter * silent! lcd %:p:h:gs/ /\\ /
+autocmd BufEnter /* call s:LoadCscope()
 
 autocmd ColorScheme * highlight ExtraWhitespace ctermbg=darkred guibg=#d65d0e
 autocmd InsertLeave,BufRead * match ExtraWhitespace /\\\@<![\u3000[:space:]]\+$/
@@ -197,6 +202,7 @@ autocmd CompleteDone * pclose
 autocmd CursorMovedI,InsertLeave \* if pumvisible() == 0|silent! pclose|endif
 autocmd BufWritePre * call s:Mkdir()
 " autocmd InsertLeave * silent! execute("update") Uncomment for autosave
+" autocmd TermClose * bwipeout!
 
 " Highlights
 highlight clear SpellBad
@@ -225,8 +231,8 @@ cnoreabbrev W w
 cnoreabbrev WQ wq
 cnoreabbrev Wq wq
 cnoreabbrev Wqa wqa
+
 cnoreabbrev DictOn set complete+=k
-cnoreabbrev DictOff set complete-=k
 
 " Functions
 function! s:Reload() abort
@@ -243,13 +249,13 @@ endfunction
 function! s:Grep(arg)
     let l:grepprg = &grepprg
     if a:arg =~? "^'"
-        let l:grepprg .= ' --fixed-strings'
+        let l:grepprg .= " --fixed-strings"
     endif
 
     let l:search = join([l:grepprg, a:arg])
     let l:results = system(l:search)
     if empty(l:results)
-        echom 'No results for search: '.a:arg
+        echom "No results for search: " . a:arg
     endif
 
     return l:results
@@ -374,17 +380,11 @@ function! CreateCenteredFloatingWindow()
     autocmd BufWipeout <buffer> exe "bwipeout ".s:buf
 endfunction
 
-function! s:ToggleTerm(cmd)
+function! s:OpenTerm(cmd)
     if empty(bufname(a:cmd))
         call CreateCenteredFloatingWindow()
-        call termopen(a:cmd, { "on_exit": function('OnTermExit') })
-    else
-        bwipeout!
+        call termopen(a:cmd, { "on_exit": { job_id, code, event -> execute("bwipeout!") }})
     endif
-endfunction
-
-function! OnTermExit(job_id, code, event) dict
-    bwipeout!
 endfunction
 
 " Native Plugins
@@ -485,7 +485,7 @@ let g:float_preview#docked = 0
 let g:asyncrun_auto = "make"
 command! MakeTags AsyncRun ctags -R .
 command! MakeScope AsyncRun cscope -Rbq
-command! -nargs=1 Entr AsyncRun find * | entr -r <f-args>
+command! -nargs=1 Entr AsyncRun find * | entr -d -r <f-args>
 
 " Asterisk
 map *   <Plug>(asterisk-*)
@@ -534,6 +534,7 @@ nnoremap <silent> <C-]> <cmd>LspDefinition<cr>
 nnoremap <silent> gD <cmd>LspImplementation<cr>
 nnoremap <silent> gr <cmd>LspReferences<cr>
 nnoremap <silent> 1gD <cmd>LspTypeDefinition<cr>
+nnoremap <silent> cio <cmd>LspCodeAction<cr>
 
 " Indent line
 let g:indentLine_fileTypeExclude = [
