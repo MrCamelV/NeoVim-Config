@@ -126,7 +126,6 @@ nnoremap <silent> cd <cmd>cclose<cr>
 nnoremap <silent> [q <cmd>execute(v:count1 . "cprevious")<cr>
 nnoremap <silent> ]q <cmd>execute(v:count1 . "cnext")<cr>
 
-
 inoremap <silent> <C-t> <C-r>=<SID>Exen("klyiWjpl")<cr><End>
 inoremap <silent> <C-u> <C-g>u<C-u>
 
@@ -191,7 +190,7 @@ autocmd TermOpen * setlocal listchars= nonumber norelativenumber
 autocmd TermOpen * startinsert
 autocmd BufEnter * if &buftype == "terminal" | startinsert | endif
 
-autocmd BufEnter * silent! lcd %:p:h:gs/ /\\ /
+" autocmd BufEnter * silent! lcd %:p:h:gs/ /\\ /
 autocmd BufEnter /* call s:LoadCscope()
 
 autocmd ColorScheme * highlight ExtraWhitespace ctermbg=darkred guibg=#d65d0e
@@ -224,15 +223,15 @@ let @w = "\<C-w>="
 " Abbreviations
 iabbrev fasle false
 
-cnoreabbrev E e
-cnoreabbrev Q q
-cnoreabbrev Qa qa
-cnoreabbrev W w
-cnoreabbrev WQ wq
-cnoreabbrev Wq wq
-cnoreabbrev Wqa wqa
+cnoreabbrev <silent> E e
+cnoreabbrev <silent> Q q
+cnoreabbrev <silent> Qa qa
+cnoreabbrev <silent> W w
+cnoreabbrev <silent> WQ wq
+cnoreabbrev <silent> Wq wq
+cnoreabbrev <silent> Wqa wqa
 
-cnoreabbrev DictOn set complete+=k
+cnoreabbrev <silent> DictOn set complete+=k
 
 " Functions
 function! s:Reload() abort
@@ -474,7 +473,7 @@ call plug#end()
 
 " Plugins Configs
 " Other
-noremap  <leader>f <cmd>Neoformat<cr>
+nnoremap <leader>f <cmd>Neoformat<cr>
 let g:neoformat_try_formatprg = 1
 let g:rainbow_active = 1
 lua require"colorizer".setup()
@@ -488,27 +487,27 @@ command! MakeScope AsyncRun cscope -Rbq
 command! -nargs=1 Entr AsyncRun find * | entr -d -r <f-args>
 
 " Asterisk
-map *   <Plug>(asterisk-*)
-map #   <Plug>(asterisk-#)
-map g*  <Plug>(asterisk-g*)
-map g#  <Plug>(asterisk-g#)
-map z*  <Plug>(asterisk-z*)
-map gz* <Plug>(asterisk-gz*)
-map z#  <Plug>(asterisk-z#)
-map gz# <Plug>(asterisk-gz#)
+map <silent> * <Plug>(asterisk-*)
+map <silent> # <Plug>(asterisk-#)
+map <silent> g* <Plug>(asterisk-g*)
+map <silent> g# <Plug>(asterisk-g#)
+map <silent> z* <Plug>(asterisk-z*)
+map <silent> gz* <Plug>(asterisk-gz*)
+map <silent> z# <Plug>(asterisk-z#)
+map <silent> gz# <Plug>(asterisk-gz#)
 let g:asterisk#keeppos = 1
 
 " FZF
 let g:fzf_layout = { "window": "call CreateCenteredFloatingWindow()" }
 let $FZF_DEFAULT_OPTS="--reverse "
-nnoremap <C-o> <cmd>Rg<cr>
-nnoremap <C-p> <cmd>Files<cr>
-nnoremap <C-u> <cmd>Commands<cr>
-nnoremap <C-q> <cmd>Buffers<cr>
+nnoremap <silent> <C-o> <cmd>Rg<cr>
+nnoremap <silent> <C-p> <cmd>Files<cr>
+nnoremap <silent> <C-u> <cmd>Commands<cr>
+nnoremap <silent> <C-q> <cmd>Buffers<cr>
 
 " Closetag
 autocmd BufEnter * :CloseTagDisableBuffer<cr>
-nnoremap <leader>ct <cmd>CloseTagToggleBuffer<cr>
+nnoremap <silent> <leader>ct <cmd>CloseTagToggleBuffer<cr>
 let g:closetag_filenames = "*.*"
 
 " LSP
@@ -552,7 +551,7 @@ let g:fastfold_fold_command_suffixes =  ['x','X','a','A','o','O','c','C']
 let g:fastfold_fold_movement_commands = [']z', '[z', 'zj', 'zk']
 
 " Vista
-nnoremap  <leader>v <cmd>Vista<cr>
+nnoremap <leader>v <cmd>Vista<cr>
 let g:vista_default_executive = "vim_lsp"
 let g:vista_finder_alternative_executives = ["ctags"]
 let g:vista_icon_indent = ["╰─▸ ", "├─▸ "]
