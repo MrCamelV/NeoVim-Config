@@ -9,4 +9,7 @@ Dependencies:
   fzf,
   ripgrep,
   python,
-  python neovim provider
+  python neovim provider,
+  cscope,
+  ctags,
+  entr
