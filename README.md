@@ -1,7 +1,7 @@
 # NeoVim-Config
 My NeoVim config files.
 
-!Important!: May not work on the Windows.
+!Important!: May not work on Windows.
 
 Dependencies:
   curl
@@ -9,3 +9,4 @@ Dependencies:
   fzf
   ripgrep
   python
+  python neovim provider
